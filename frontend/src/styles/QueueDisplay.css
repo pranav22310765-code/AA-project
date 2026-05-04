@@ -1,0 +1,363 @@
+.queue-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 30px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.queue-header {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.queue-header h1 {
+  margin: 0;
+  color: #333;
+  font-size: 28px;
+}
+
+.queue-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.refresh-btn {
+  padding: 10px 20px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background-color: #764ba2;
+  transform: scale(1.05);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auto-refresh-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+}
+
+.auto-refresh-toggle input {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* Statistics Panel */
+.stats-panel {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 4px solid #667eea;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-card.priority-1 {
+  border-left-color: #dc3545;
+}
+
+.stat-card.priority-2 {
+  border-left-color: #ffc107;
+}
+
+.stat-card.priority-3 {
+  border-left-color: #28a745;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  color: #333;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+/* Queue Content */
+.queue-content {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.queue-content h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.empty-queue {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 18px;
+}
+
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 10px;
+  border-left: 5px solid #667eea;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.queue-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.queue-position {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.position-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.patient-info {
+  flex: 1;
+}
+
+.patient-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.patient-details {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+}
+
+.symptoms {
+  font-size: 13px;
+  color: #888;
+  font-style: italic;
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.priority-badge {
+  flex-shrink: 0;
+  width: 80px;
+  padding: 12px;
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.priority-value {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.priority-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.waiting-info {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 10px 15px;
+  background: white;
+  border-radius: 8px;
+}
+
+.waiting-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.waiting-time {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 4px;
+}
+
+.patient-id {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #999;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.error-message {
+  max-width: 1200px;
+  margin: 0 auto 20px;
+  padding: 15px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: white;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.last-updated {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .queue-item {
+    flex-wrap: wrap;
+  }
+
+  .queue-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .queue-header h1 {
+    font-size: 24px;
+  }
+
+  .queue-controls {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .symptoms {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-panel {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .queue-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .patient-info {
+    width: 100%;
+  }
+
+  .queue-position,
+  .priority-badge,
+  .waiting-info {
+    align-self: flex-start;
+  }
+}
