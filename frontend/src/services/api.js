@@ -70,4 +70,9 @@ export const getAssignmentStats = () => {
   return api.get('/assignment/stats');
 };
 
+// ===== PATIENT MANAGEMENT BY DOCTOR =====
+export const getAssignedPatientsByDoctor = (doctorId) => {
+  return api.get(`/patients?assignedDoctor=${doctorId}`);
+};
+
 export default api;

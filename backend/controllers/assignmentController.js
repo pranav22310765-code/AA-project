@@ -12,48 +12,71 @@ const Doctor = require('../models/Doctor');
  */
 exports.assignPatientToDoctor = async (req, res) => {
   try {
-    // Get next waiting patient (sorted by priority, then arrival time)
+    console.log('\n=== STEP 0: Get Sorted Patient Queue ===');
+    
+    // STEP 1: Select waiting patient
+    console.log('STEP 1: Selecting waiting patient...');
     const waitingPatient = await Patient.findOne({ status: 'waiting' })
       .sort({ priority: 1, arrivalTime: 1 });
 
     if (!waitingPatient) {
+      console.log('❌ No waiting patients in queue');
       return res.status(400).json({
         success: false,
         message: 'No waiting patients in queue',
       });
     }
+    console.log(`✓ Selected: ${waitingPatient.name} (Priority: ${waitingPatient.priority}, Arrival: ${waitingPatient.arrivalTime})`);
 
-    // Find doctor with least load (available and not offline)
-    const leastLoadedDoctor = await Doctor.findOne({
-      status: { $ne: 'offline' },
-      currentLoad: { $lt: '$maxCapacity' }, // Load is less than capacity
-    })
+    // STEP 2: Get available doctors
+    console.log('\nSTEP 2: Getting available doctors...');
+    const availableDoctors = await Doctor.find({ status: 'available' })
       .sort({ currentLoad: 1 });
 
-    if (!leastLoadedDoctor) {
+    console.log(`Found ${availableDoctors.length} available doctor(s):`);
+    availableDoctors.forEach(d => {
+      console.log(`  - ${d.name}: Load ${d.currentLoad}/${d.maxCapacity}`);
+    });
+
+    if (availableDoctors.length === 0) {
+      console.log('❌ No available doctors');
       return res.status(400).json({
         success: false,
         message: 'No available doctors to assign',
       });
     }
 
-    // Check if doctor is at capacity
+    // STEP 3: Find least loaded doctor
+    console.log('\nSTEP 3: Finding least loaded doctor...');
+    const leastLoadedDoctor = availableDoctors[0]; // Already sorted by load
+    console.log(`✓ Selected: ${leastLoadedDoctor.name} (Load: ${leastLoadedDoctor.currentLoad}/${leastLoadedDoctor.maxCapacity})`);
+
+    // STEP 4: Check capacity
+    console.log('\nSTEP 4: Checking doctor capacity...');
     if (leastLoadedDoctor.currentLoad >= leastLoadedDoctor.maxCapacity) {
+      console.log(`❌ Doctor ${leastLoadedDoctor.name} is at capacity`);
       return res.status(400).json({
         success: false,
-        message: 'All doctors are at capacity',
+        message: `Doctor ${leastLoadedDoctor.name} is at capacity`,
       });
     }
+    console.log(`✓ Doctor has capacity (${leastLoadedDoctor.currentLoad}/${leastLoadedDoctor.maxCapacity})`);
 
-    // Update patient
+    // STEP 5: Assign patient
+    console.log('\nSTEP 5: Assigning patient...');
     waitingPatient.status = 'assigned';
     waitingPatient.assignedDoctor = leastLoadedDoctor._id;
     await waitingPatient.save();
+    console.log(`✓ Patient status updated to "assigned"`);
 
-    // Update doctor
+    // STEP 6: Update doctor load
+    console.log('\nSTEP 6: Updating doctor load...');
     leastLoadedDoctor.assignedPatients.push(waitingPatient._id);
     leastLoadedDoctor.currentLoad += 1;
     await leastLoadedDoctor.save();
+    console.log(`✓ Doctor load updated: ${leastLoadedDoctor.currentLoad}/${leastLoadedDoctor.maxCapacity}`);
+
+    console.log('\n=== Assignment Complete ===\n');
 
     res.status(200).json({
       success: true,
@@ -68,7 +91,7 @@ exports.assignPatientToDoctor = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error assigning patient to doctor:', error);
+    console.error('❌ Error assigning patient:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error assigning patient to doctor',
@@ -83,12 +106,22 @@ exports.assignPatientToDoctor = async (req, res) => {
  */
 exports.bulkAssignPatients = async (req, res) => {
   try {
-    const { count = 5 } = req.body; // Default: assign 5 patients
+    console.log('\n\n╔════════════════════════════════════════╗');
+    console.log('║  BULK ASSIGNMENT PROCESS STARTED       ║');
+    console.log('╚════════════════════════════════════════╝\n');
 
-    // Get waiting patients
+    const { count = 5 } = req.body;
+
+    // STEP 0: Get sorted queue
+    console.log('STEP 0: Getting sorted patient queue...');
     const waitingPatients = await Patient.find({ status: 'waiting' })
       .sort({ priority: 1, arrivalTime: 1 })
       .limit(count);
+
+    console.log(`✓ Found ${waitingPatients.length} waiting patients:\n`);
+    waitingPatients.forEach((p, i) => {
+      console.log(`  ${i + 1}. ${p.name} - Priority: ${p.priority}, Arrival: ${new Date(p.arrivalTime).toLocaleTimeString()}`);
+    });
 
     if (waitingPatients.length === 0) {
       return res.status(400).json({
@@ -100,42 +133,96 @@ exports.bulkAssignPatients = async (req, res) => {
     const assignments = [];
     let assignmentCount = 0;
 
-    for (const patient of waitingPatients) {
-      try {
-        // Find least-loaded doctor
-        const doctor = await Doctor.findOne({
-          status: { $ne: 'offline' },
-          currentLoad: { $lt: '$maxCapacity' },
-        }).sort({ currentLoad: 1 });
+    // STEP 7: Continue loop - Process each patient
+    for (let patientIndex = 0; patientIndex < waitingPatients.length; patientIndex++) {
+      const patient = waitingPatients[patientIndex];
+      console.log(`\n${'─'.repeat(50)}`);
+      console.log(`\nProcessing Patient ${patientIndex + 1}/${waitingPatients.length}: ${patient.name}`);
+      console.log(`${'─'.repeat(50)}`);
 
-        if (!doctor || doctor.currentLoad >= doctor.maxCapacity) {
-          console.log(`No available doctor for patient ${patient._id}`);
+      try {
+        // STEP 1: Select patient (check if waiting)
+        console.log(`\n[STEP 1] Checking patient status...`);
+        if (patient.status !== 'waiting') {
+          console.log(`⚠️  Patient status is "${patient.status}", skipping...`);
+          continue;
+        }
+        console.log(`✓ Patient status is "waiting"`);
+
+        // STEP 2: Get available doctors
+        console.log(`\n[STEP 2] Getting available doctors...`);
+        const availableDoctors = await Doctor.find({ status: 'available' })
+          .sort({ currentLoad: 1 });
+
+        console.log(`Found ${availableDoctors.length} available doctor(s):`);
+        availableDoctors.forEach(d => {
+          console.log(`  • ${d.name}: ${d.currentLoad}/${d.maxCapacity}`);
+        });
+
+        if (availableDoctors.length === 0) {
+          console.log(`❌ No available doctors, skipping patient...`);
           continue;
         }
 
-        // Update patient
-        patient.status = 'assigned';
-        patient.assignedDoctor = doctor._id;
-        await patient.save();
+        // STEP 3: Find least loaded doctor
+        console.log(`\n[STEP 3] Finding least loaded doctor...`);
+        const leastLoadedDoctor = availableDoctors[0]; // Already sorted
+        console.log(`✓ Selected: ${leastLoadedDoctor.name}`);
 
-        // Update doctor
-        doctor.assignedPatients.push(patient._id);
-        doctor.currentLoad += 1;
-        await doctor.save();
+        // STEP 4: Check capacity
+        console.log(`\n[STEP 4] Checking doctor capacity...`);
+        if (leastLoadedDoctor.currentLoad >= leastLoadedDoctor.maxCapacity) {
+          console.log(`❌ Doctor at capacity (${leastLoadedDoctor.currentLoad}/${leastLoadedDoctor.maxCapacity}), skipping...`);
+          continue;
+        }
+        console.log(`✓ Doctor has capacity (${leastLoadedDoctor.currentLoad}/${leastLoadedDoctor.maxCapacity})`);
+
+        // IMPORTANT: Fetch fresh doctor data from database before updating
+        // This ensures we have the latest currentLoad value
+        console.log(`\n[STEP 4.5] Fetching fresh doctor data from database...`);
+        const freshDoctor = await Doctor.findById(leastLoadedDoctor._id);
+        
+        // Check capacity again with fresh data
+        if (freshDoctor.currentLoad >= freshDoctor.maxCapacity) {
+          console.log(`❌ Doctor now at capacity after refresh (${freshDoctor.currentLoad}/${freshDoctor.maxCapacity}), trying next doctor...`);
+          continue;
+        }
+        console.log(`✓ Fresh doctor load: ${freshDoctor.currentLoad}/${freshDoctor.maxCapacity}`);
+
+        // STEP 5: Assign patient
+        console.log(`\n[STEP 5] Assigning patient...`);
+        patient.status = 'assigned';
+        patient.assignedDoctor = freshDoctor._id;
+        await patient.save();
+        console.log(`✓ Patient status → "assigned"`);
+
+        // STEP 6: Update doctor load
+        console.log(`\n[STEP 6] Updating doctor load...`);
+        freshDoctor.assignedPatients.push(patient._id);
+        freshDoctor.currentLoad += 1;
+        await freshDoctor.save();
+        console.log(`✓ Doctor load updated → ${freshDoctor.currentLoad}/${freshDoctor.maxCapacity}`);
 
         assignments.push({
           patientId: patient._id,
           patientName: patient.name,
-          doctorId: doctor._id,
-          doctorName: doctor.name,
-          doctorLoad: `${doctor.currentLoad}/${doctor.maxCapacity}`,
+          doctorId: freshDoctor._id,
+          doctorName: freshDoctor.name,
+          doctorLoad: `${freshDoctor.currentLoad}/${freshDoctor.maxCapacity}`,
         });
 
         assignmentCount++;
+        console.log(`\n✅ ${patient.name} → ${freshDoctor.name}`);
+
       } catch (err) {
-        console.error(`Error assigning patient ${patient._id}:`, err);
+        console.error(`❌ Error processing patient ${patient.name}:`, err.message);
       }
     }
+
+    console.log(`\n\n╔════════════════════════════════════════╗`);
+    console.log(`║  ASSIGNMENT COMPLETE                   ║`);
+    console.log(`║  Assigned: ${assignmentCount}/${waitingPatients.length}                         ║`);
+    console.log(`╚════════════════════════════════════════╝\n`);
 
     res.status(200).json({
       success: true,
@@ -144,7 +231,7 @@ exports.bulkAssignPatients = async (req, res) => {
       assignments,
     });
   } catch (error) {
-    console.error('Error bulk assigning patients:', error);
+    console.error('❌ Error in bulk assignment:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error bulk assigning patients',

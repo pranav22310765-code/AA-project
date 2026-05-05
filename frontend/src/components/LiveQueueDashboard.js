@@ -16,18 +16,39 @@ const LiveQueueDashboard = () => {
       setLoading(true);
       const [queueRes, statsRes] = await Promise.all([getLiveQueue(), getQueueStats()]);
 
-      if (queueRes.data.success) {
+      if (queueRes.data.success && queueRes.data.queue) {
         setQueue(queueRes.data.queue);
+      } else {
+        setQueue([]);
       }
 
-      if (statsRes.data.success) {
+      if (statsRes.data.success && statsRes.data.stats) {
         setStats(statsRes.data.stats);
+      } else {
+        setStats({
+          queue: {
+            waiting: 0,
+            assigned: 0,
+            inProgress: 0,
+            completed: 0,
+          },
+        });
       }
 
       setError('');
     } catch (err) {
       setError('Failed to fetch queue data');
       console.error('Error fetching queue:', err);
+      // Set default empty stats to prevent undefined errors
+      setStats({
+        queue: {
+          waiting: 0,
+          assigned: 0,
+          inProgress: 0,
+          completed: 0,
+        },
+      });
+      setQueue([]);
     } finally {
       setLoading(false);
     }
@@ -98,7 +119,7 @@ const LiveQueueDashboard = () => {
     <div className="live-queue-container">
       {/* Header */}
       <div className="lq-header">
-        <h1>🔴 Live Queue Monitor</h1>
+        <h1> Live Queue Monitor</h1>
         <div className="lq-controls">
           <button
             className="refresh-btn"
@@ -295,27 +316,27 @@ const LiveQueueDashboard = () => {
           )}
 
           {/* Queue Statistics Footer */}
-          {stats && (
+          {stats && stats.queue && (
             <div className="queue-stats-footer">
               <div className="stat-item">
                 <div className="stat-icon">⏳</div>
                 <div className="stat-label">Waiting</div>
-                <div className="stat-number">{stats.queue.waiting}</div>
+                <div className="stat-number">{stats.queue.waiting || 0}</div>
               </div>
               <div className="stat-item">
                 <div className="stat-icon">👨‍⚕️</div>
                 <div className="stat-label">Assigned</div>
-                <div className="stat-number">{stats.queue.assigned}</div>
+                <div className="stat-number">{stats.queue.assigned || 0}</div>
               </div>
               <div className="stat-item">
                 <div className="stat-icon">⏱️</div>
                 <div className="stat-label">In Progress</div>
-                <div className="stat-number">{stats.queue.inProgress}</div>
+                <div className="stat-number">{stats.queue.inProgress || 0}</div>
               </div>
               <div className="stat-item">
                 <div className="stat-icon">✓</div>
                 <div className="stat-label">Completed</div>
-                <div className="stat-number">{stats.queue.completed}</div>
+                <div className="stat-number">{stats.queue.completed || 0}</div>
               </div>
             </div>
           )}

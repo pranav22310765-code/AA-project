@@ -34,12 +34,12 @@ const patientSchema = new mongoose.Schema(
     },
     priority: {
       type: Number,
-      enum: [1, 2, 3],
+      enum: [1, 2, 3, 4],
       required: true,
     },
     status: {
       type: String,
-      enum: ['waiting', 'in-progress', 'completed', 'cancelled'],
+      enum: ['waiting', 'assigned', 'in-progress', 'completed', 'cancelled'],
       default: 'waiting',
     },
     arrivalTime: {
