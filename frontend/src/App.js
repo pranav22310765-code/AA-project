@@ -19,25 +19,25 @@ function App() {
               className={`nav-btn ${currentView === 'queue' ? 'active' : ''}`}
               onClick={() => setCurrentView('queue')}
             >
-              🔴 Live Queue
+              Live Queue
             </button>
             <button
               className={`nav-btn ${currentView === 'register' ? 'active' : ''}`}
               onClick={() => setCurrentView('register')}
             >
-              ➕ Register Patient
+              Register Patient
             </button>
             <button
               className={`nav-btn ${currentView === 'doctors' ? 'active' : ''}`}
               onClick={() => setCurrentView('doctors')}
             >
-              👨‍⚕️ Doctors
+              Doctors
             </button>
             <button
               className={`nav-btn ${currentView === 'balancing' ? 'active' : ''}`}
               onClick={() => setCurrentView('balancing')}
             >
-              ⚖️ Load Balancing
+              Load Balancing
             </button>
           </div>
         </div>

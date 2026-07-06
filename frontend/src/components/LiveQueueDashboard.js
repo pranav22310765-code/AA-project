@@ -134,7 +134,7 @@ const LiveQueueDashboard = () => {
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
             />
-            Auto-Refresh
+            <span>Auto-Refresh</span>
           </label>
         </div>
       </div>
@@ -217,9 +217,6 @@ const LiveQueueDashboard = () => {
                   </div>
                 </div>
 
-                <div className="action-button">
-                  <button className="call-next-btn">📞 Call Patient for Examination</button>
-                </div>
               </div>
             )}
           </div>
@@ -316,7 +313,7 @@ const LiveQueueDashboard = () => {
           )}
 
           {/* Queue Statistics Footer */}
-          {stats && stats.queue && (
+          {stats?.queue && (
             <div className="queue-stats-footer">
               <div className="stat-item">
                 <div className="stat-icon">⏳</div>

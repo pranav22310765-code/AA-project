@@ -40,7 +40,7 @@ const PatientRegistration = () => {
       }
 
       // Validate contact (10 digits)
-      if (!/^[0-9]{10}$/.test(formData.contact)) {
+      if (!/^\d{10}$/.test(formData.contact)) {
         setMessageType('error');
         setMessage('Contact must be a valid 10-digit phone number');
         setLoading(false);
@@ -217,15 +217,19 @@ const PatientRegistration = () => {
           <h3>Priority Levels</h3>
           <div className="priority-item">
             <span className="priority-badge priority-1">1</span>
-            <span>Critical (Highest)</span>
+            <span>Critical</span>
           </div>
           <div className="priority-item">
             <span className="priority-badge priority-2">2</span>
-            <span>High/Moderate</span>
+            <span>High</span>
           </div>
           <div className="priority-item">
             <span className="priority-badge priority-3">3</span>
-            <span>Mild (Lowest)</span>
+            <span>Moderate</span>
+          </div>
+          <div className="priority-item">
+            <span className="priority-badge priority-4">4</span>
+            <span>Mild</span>
           </div>
         </div>
       </div>
